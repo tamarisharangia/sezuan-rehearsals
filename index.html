@@ -391,6 +391,14 @@ h2{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-
 .day-reh{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
 .day-reh-i{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;text-align:left;border:1px solid var(--ink);border-radius:8px;background:var(--card);padding:8px 12px;font-size:.88rem;color:var(--ink)}
 .day-add{align-self:flex-start;margin:2px 0 8px}
+.reh-when{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--paper);background:var(--ink);border-radius:4px;padding:2px 6px}
+.reh.past{opacity:.55;background:transparent}
+.reh.past .reh-time{color:var(--muted)}
+.past-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;margin:22px 0 10px;padding:12px 2px;border:0;border-top:1px solid var(--line);background:transparent;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.past-toggle svg{width:14px;height:14px;transition:transform .2s}
+.past-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+.past-toggle:hover{color:var(--ink)}
+.rmark.past{opacity:.35}
 .rmark{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ink);margin-left:6px;vertical-align:middle}
 .empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line)}
 
@@ -612,6 +620,11 @@ var REH, rcol; if(!Array.isArray(REH)) REH=[];
 const PLACES=[{id:"main",name:"Основной зал"},{id:"yellow",name:"Жёлтый зал"}];
 const placeName=r=>r.place==="other"?(r.placeText||"Другое место"):(PLACES.find(p=>p.id===r.place)||PLACES[0]).name;
 const rehOn=iso=>REH.filter(r=>r.date===iso).sort((a,b)=>a.from-b.from);
+const nowMs=()=>window.__NOW||Date.now();
+const isoToDate=(iso,min)=>{ const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d,0,min||0); };
+const isPast=r=>isoToDate(r.date,r.to).getTime()<=nowMs();
+const relDay=iso=>{ const n=new Date(nowMs()), t=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime(), x=isoToDate(iso).getTime(), dd=Math.round((x-t)/864e5); return dd===0?"Сегодня":dd===1?"Завтра":""; };
+
 const freeFor=(pid,iso,from,to)=>{ const sl=slotsOf(pid,iso); for(let m=from;m<to;m+=30){ if(!sl[(m-T0)/30]) return false; } return true; };
 const XICON='<svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.4" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M3.4 3.4l3.2 3.2M6.6 3.4L3.4 6.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>';
 function openCreate(o){ S.create={id:o.id||null,date:o.date||DAYS[0].iso,from:o.from??1080,to:o.to??1260,people:new Set(o.people||[]),place:o.place||"main",placeText:o.placeText||"",editing:!!o.editing,confirmDel:false}; render(); }
@@ -677,21 +690,23 @@ function renderSheet(){
     if(strip){ strip.scrollLeft = on ? on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2 : 0; } }
 }
 function viewPlan(){
-  const list=[...REH].sort((a,b)=>a.date.localeCompare(b.date)||a.from-b.from);
+  const MON_N=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+  const up=REH.filter(r=>!isPast(r)).sort((a,b)=>a.date.localeCompare(b.date)||a.from-b.from);
+  const past=REH.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date)||b.from-a.from);
   let h=`<div class="plan-head"><h2>График репетиций</h2><button class="btn primary" data-act="newreh">+ Новая репетиция</button></div>`;
-  if(!list.length) return h+`<div class="empty">Пока нет ни одной репетиции. Выберите актёров во вкладке «Кто когда может» и нажмите <b>+</b> на подходящем дне — или создайте репетицию кнопкой выше.</div>`;
-  let curMo=-1;
-  for(const r of list){
-    const d=DAYS[DI[r.date]];
-    if(d.mo!==curMo){ curMo=d.mo; h+=`<h3 class="plan-mo">${["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"][d.mo]}</h3>`; }
-    const ppl=(r.people||[]).filter(id=>PM[id]);
-    const busy=ppl.filter(id=>!freeFor(id,r.date,r.from,r.to));
-    h+=`<article class="reh" data-act="openreh" data-id="${esc(r.id)}" role="button" tabindex="0">
+  if(!REH.length) return h+`<div class="empty">Пока нет ни одной репетиции. Выберите актёров во вкладке «Кто когда может» и нажмите <b>+</b> на подходящем дне — или создайте репетицию кнопкой выше.</div>`;
+  const card=(r,isP)=>{ const d=DAYS[DI[r.date]], ppl=(r.people||[]).filter(id=>PM[id]);
+    const busy=isP?[]:ppl.filter(id=>!freeFor(id,r.date,r.from,r.to)), rel=isP?"":relDay(r.date);
+    return `<article class="reh${isP?" past":""}" data-act="openreh" data-id="${esc(r.id)}" role="button" tabindex="0">
       <div class="reh-date"><span class="rw">${WD[d.wd]}</span><span class="rd">${d.dn}</span><span class="rm">${MON_S[d.mo]}</span></div>
-      <div class="reh-body"><div class="reh-top"><span class="reh-time">${fmt(r.from)}–${fmt(r.to)}</span><span class="reh-place">${esc(placeName(r))}</span></div>
-      <div class="reh-ppl">${ppl.map(id=>{const bad=busy.includes(id);return `<span class="cr-p${bad?" bad":""}">${bad?XICON:""}<b>${esc(PM[id].name)}</b> ${esc(PM[id].role)}</span>`}).join("")}</div>
-</div>
-    </article>`;
+      <div class="reh-body"><div class="reh-top"><span class="reh-time">${fmt(r.from)}–${fmt(r.to)}</span><span class="reh-place">${esc(placeName(r))}</span>${rel?`<span class="reh-when">${rel}</span>`:""}</div>
+      <div class="reh-ppl">${ppl.map(id=>{const bad=busy.includes(id);return `<span class="cr-p${bad?" bad":""}">${bad?XICON:""}<b>${esc(PM[id].name)}</b> ${esc(PM[id].role)}</span>`}).join("")}</div></div>
+    </article>`; };
+  if(up.length){ let curMo=-1; for(const r of up){ const d=DAYS[DI[r.date]]; if(d.mo!==curMo){ curMo=d.mo; h+=`<h3 class="plan-mo">${MON_N[d.mo]}</h3>`; } h+=card(r,false); } }
+  else h+=`<div class="empty">Ближайших репетиций пока нет.</div>`;
+  if(past.length){
+    h+=`<button class="past-toggle" data-act="togglepast" aria-expanded="${!!S.showPast}"><span>Прошедшие · ${past.length}</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+    if(S.showPast) h+=`<div class="past-list">${past.map(r=>card(r,true)).join("")}</div>`;
   }
   return h;
 }
@@ -831,7 +846,7 @@ function viewCal(){
       foot=`<span class="tag free"><span class="tl">могут</span><b>${s.yes}</b></span>`;
     } else foot=`<span class="tag none"><span class="tl">пока никого</span><b class="tm">—</b></span>`;
     const sel=S.day===d.iso;
-    h+=`<a class="cell${mix>50?" hot":""}${sel?" sel":""}" href="${sel?"#calendar":"#day-"+d.iso}" aria-expanded="${sel}" style="${style}"><span class="cn">${d.dn}${rehOn(d.iso).length?`<i class="rmark" title="Назначена репетиция"></i>`:""}</span>${foot}</a>`;
+    h+=`<a class="cell${mix>50?" hot":""}${sel?" sel":""}" href="${sel?"#calendar":"#day-"+d.iso}" aria-expanded="${sel}" style="${style}"><span class="cn">${d.dn}${rehOn(d.iso).length?`<i class="rmark${rehOn(d.iso).every(isPast)?" past":""}" title="Назначена репетиция"></i>`:""}</span>${foot}</a>`;
     // конец строки недели (воскресенье или последний день месяца) — сюда вставляется раскрытый день
     const nx=DAYS[DI[d.iso]+1], rowEnd=d.wd===0||!nx||nx.mo!==d.mo;
     if(rowEnd&&S.day){ const sd=DAYS[DI[S.day]]; if(sd&&sd.mo===d.mo&&DI[S.day]<=DI[d.iso]&&DI[S.day]>=DI[d.iso]-((d.wd+6)%7))
@@ -913,6 +928,7 @@ document.addEventListener("click",e=>{
       ls.set("need",[...S.need].join(",")); render(); break; }
     case "slot": { const k=+b.dataset.k; S.slot=S.slot===k?null:k; render(); break; }
     case "closeday": location.hash="calendar"; break;
+    case "togglepast": S.showPast=!S.showPast; render(); break;
     case "newreh": { const base=iso||(S.day||DAYS[0].iso);
       let from=b.dataset.s?+b.dataset.s:1080, to=b.dataset.e?+b.dataset.e:1260;
       if(!b.dataset.s&&S.need.size){ const n=needInfo(base); if(n&&n.runs.length){ from=n.runs[0][0]; to=n.runs[0][1]; } }
