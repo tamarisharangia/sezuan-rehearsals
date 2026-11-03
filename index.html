@@ -447,6 +447,58 @@ h2{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-
 }
 @media (prefers-reduced-motion:no-preference){.seg{transition:left .2s,width .2s}}
 @media (prefers-reduced-motion:reduce){.ck-stage canvas{transition:none}.ck-slip.show{animation:none}}
+/* ---------- форма репетиции: по макету Paper (390 × 559) ---------- */
+@font-face{font-family:"Suisse Intl";src:url("fonts/SuisseIntl-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Suisse Intl";src:url("fonts/SuisseIntl-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+.cr3{--f-areal:"Suisse Intl", system-ui, -apple-system, "Segoe UI", sans-serif}
+.cr3 .cr-head h3,.cr3 .cr-val,.cr3 .cr-link,.cr3 .cr-save{font-family:var(--f-areal)}
+.sheet-panel.cr3{width:min(390px,100%);gap:0;padding:23px 17px 24px 18px;border-radius:20px;background:var(--card)}
+.cr3 .sheet-grip{display:none}
+.cr3 .cr-head{align-items:flex-start;min-height:32px}
+.cr3 .cr-head h3{margin:12px 0 0;font-family:var(--f-body);font-weight:400;text-transform:none;letter-spacing:-.01em;font-size:16px;line-height:20px;color:var(--muted)}
+.cr3 .cr-x{position:relative;width:32px;height:32px;border:1px solid var(--muted);border-radius:8px;background:var(--card);color:var(--muted);display:grid;place-items:center;padding:0}
+.cr3 .cr-x::after{content:"";position:absolute;inset:-6px}
+.cr3 .cr-x svg{width:15px;height:15px}
+.cr-rows{display:flex;flex-direction:column;gap:14px;margin-top:27px}
+.cr-row{display:grid;grid-template-columns:35px minmax(0,1fr);align-items:center}
+.cr-row.cr-sub{align-items:start}
+.cr-ic{color:var(--muted);display:flex;align-items:center}
+.cr-ic svg{width:20px;height:20px}
+.cr-time{margin-bottom:2px}
+.cr-tline{display:grid;grid-template-columns:140px 34px auto auto;justify-content:start;align-items:center}
+.cr-tline select{appearance:none;-webkit-appearance:none;justify-self:start;border:0;background:transparent;padding:0;width:5.1ch;height:20px;font-family:var(--f-mono);font-weight:600;font-size:20px;line-height:20px;color:var(--jade);cursor:pointer;font-variant-numeric:tabular-nums}
+.cr-arr{color:var(--muted);display:flex}.cr-arr svg{width:16px;height:16px}
+.cr-dur{margin-left:6px;font-family:var(--f-mono);font-size:13px;line-height:20px;color:var(--muted);white-space:nowrap}
+.cr-val{justify-self:start;border:0;background:transparent;padding:0;font:inherit;font-size:20px;line-height:24px;letter-spacing:-.01em;color:var(--ink);text-align:left;cursor:pointer}
+.cr-static{cursor:default}
+.cr-selwrap{position:relative;display:inline-block}
+.cr-selwrap select{position:absolute;inset:0;width:100%;opacity:0;appearance:none;-webkit-appearance:none;border:0;font-size:16px;cursor:pointer}
+.cr-selwrap:focus-within,.cr-val:focus-visible{outline:2px solid var(--jade);outline-offset:3px;border-radius:4px}
+.cr-sub .cr-when{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.cr-pwrap{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0}
+.cr-pwrap .cr-pbox{width:100%}
+.cr-tags{display:flex;flex-wrap:wrap;gap:6px}
+.cr-tag{display:inline-flex;align-items:baseline;gap:5px;height:24px;padding:4px 10px;border-radius:999px;background:var(--ink);color:var(--paper)}
+.cr-tag b{font-size:13px;line-height:16px;font-weight:600}
+.cr-tag span{font-size:12px;line-height:16px}
+.cr-tag.bad{background:var(--seal);color:#fff}
+.cr-tag svg{width:11px;height:11px;flex:none;align-self:center}
+.cr3 .cr-warn{font-size:13px;line-height:17px;margin:-4px 0 0}
+.cr-link{border:0;background:transparent;padding:0;font:inherit;font-size:20px;line-height:24px;letter-spacing:-.01em;color:var(--muted);cursor:pointer;text-align:left}
+.cr-link:hover{color:var(--ink)}
+.cr-link[aria-expanded="true"]{color:var(--jade)}
+.cr3 .cr-place-in{font-size:16px}
+.cr3 .cr-actions{position:static;margin:auto 2px 0 -6px;padding:24px 0 0;border-top:0;background:transparent}
+.cr3 .cr-save{flex:none;height:44px;padding:0 16px;border-radius:8px;font-size:20px;line-height:24px;font-weight:700}
+@media (max-width:760px){
+  .sheet-panel.cr3{width:100%;min-height:min(559px,92dvh);border-radius:20px 20px 0 0;padding-bottom:max(44px, calc(env(safe-area-inset-bottom, 0px) + 10px))}
+}
+
+/* список участников раскрывается в форме под ссылкой */
+.cr3 .cr-pbox.anim{animation:pbopen .24s cubic-bezier(.2,.9,.3,1);transform-origin:top}
+@keyframes pbopen{from{opacity:0;transform:translateY(-8px)}}
+.cr3 .cr-chips{max-height:240px}
+@media (prefers-reduced-motion:reduce){ .cr3 .cr-pbox.anim{animation:none} }
 </style>
 <script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")}catch(e){document.documentElement.setAttribute("data-theme","light")}</script>
 </head>
@@ -642,10 +694,22 @@ async function saveReh(){
 }
 const DENY_MSG="База не приняла репетицию: не обновлены правила Firebase. Владельцу сайта: вставьте новый текст из firestore.rules в Firestore → Rules и нажмите Publish.";
 async function deleteReh(id){ try{ await rcol.doc(id).delete(); S.create=null; render(); }catch(e){ setStatus("Не удалось удалить репетицию.",true); } }
+const WD_FULL=["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
+const plural=(n,a,b,c)=>{ const m10=n%10, m100=n%100; return m10===1&&m100!==11?a: m10>=2&&m10<=4&&(m100<12||m100>14)?b:c; };
+const durText=min=>{ const h=Math.floor(min/60), m=min%60; return !h?`${m} мин`: !m?`${h} ${plural(h,"час","часа","часов")}`: m===30?`${h},5 часа`:`${h} ч ${m} мин`; };
+const IC={
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l-3 2.5"/></svg>',
+  place:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M16.5 7.5l-3 9-1.6-3.9-3.9-1.6z"/></svg>',
+  person:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5 19.5c.6-3.4 3.4-5.3 7-5.3s6.4 1.9 7 5.3z"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>'
+};
 function renderSheet(){
   const el=document.getElementById("sheet"), c=S.create;
   if(!c){ if(!el.hidden){ el.hidden=true; document.body.style.overflow=""; } return; }
   const sel=DAYS[DI[c.date]]; if(c.mo===undefined) c.mo=sel.mo;
+  if(c.pick===undefined) c.pick=c.people.size?null:"people";
   const months=[...new Set(DAYS.map(x=>x.mo))], mi=months.indexOf(c.mo);
   const MON_N=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
   const sorted=[...PEOPLE].sort((a,b)=>a.name.localeCompare(b.name,"ru")||a.role.localeCompare(b.role,"ru"));
@@ -655,38 +719,49 @@ function renderSheet(){
   const dchip=x=>`<button class="dchip${x.iso===c.date?" on":""}${x.wd===0||x.wd===6?" we":""}" data-act="crday" data-d="${x.iso}" aria-pressed="${x.iso===c.date}" aria-label="${WD[x.wd]}, ${x.dn} ${MON_G[x.mo]}${allFree(x.iso)?" — все выбранные могут":""}"><span class="dw">${WD[x.wd]}</span><span class="dn">${x.dn}</span><i class="${allFree(x.iso)?"ok":""}"></i></button>`;
   const pchip=p=>{ const on=c.people.has(p.id), bad=on&&busy.includes(p.id);
     return `<button class="nchip${bad?" bad":""}" data-act="crp" data-p="${p.id}" aria-pressed="${on}"${bad?` title="не отмечал(а) это время как свободное"`:""}>${bad?XICON:""}<b>${esc(p.name)}</b><small>${esc(p.role)}</small></button>`; };
+  const sumChip=id=>{ const p=PM[id], bad=busy.includes(id); return `<span class="cr-tag${bad?" bad":""}">${bad?XICON:""}<b>${esc(p.name)}</b><span>${esc(p.role)}</span></span>`; };
+  const n=c.people.size, editP=c.pick==="people", pickD=c.pick==="date";
+  const chosen=sorted.filter(p=>c.people.has(p.id)).map(p=>p.id);
   el.innerHTML=`<div class="sheet-bg" data-act="crclose"></div>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="crTitle">
+  <div class="sheet-panel cr3" role="dialog" aria-modal="true" aria-labelledby="crTitle">
     <div class="sheet-grip" aria-hidden="true"></div>
-    <div class="cr-head"><h3 id="crTitle">${c.id?"Репетиция":"Создать репетицию"}</h3><button class="cr-x" data-act="crclose" aria-label="Закрыть">×</button></div>
-    <div class="cr-when">
-      <div class="cr-mon"><button class="btn cr-mnav" data-act="crmon" data-dir="-1" aria-label="Предыдущий месяц"${mi>0?"":" hidden"}>‹</button><span>${MON_N[c.mo]}</span><button class="btn cr-mnav" data-act="crmon" data-dir="1" aria-label="Следующий месяц"${mi<months.length-1?"":" hidden"}>›</button></div>
-      <div class="cr-days" id="crDays">${DAYS.filter(x=>x.mo===c.mo).map(dchip).join("")}</div>
-      <div class="cr-times">
-        <label class="cr-t"><span>Начало</span><select id="crFrom" data-cr="from">${timeOpts(c.from,T0,T1-30)}</select></label>
-        <label class="cr-t end"><span>Конец</span><select id="crTo" data-cr="to">${timeOpts(c.to,T0+30,T1)}</select></label>
-      </div>
-    </div>
-    <div class="cr-sec"><div class="cr-lbl">Участники${c.people.size?` · ${c.people.size}`:""}</div>
-      <div class="cr-pbox"><div class="cr-groups">${GROUPS.map(g=>`<button class="gchip" data-act="crgroup" data-g="${g.id}" aria-pressed="${g.ids.every(id=>c.people.has(id))}">${esc(g.name)} <span class="gn">${g.ids.length}</span></button>`).join("")}</div>
-      <div class="cr-chips">${(c.order||(c.order=[...sorted.filter(p=>c.people.has(p.id)),...sorted.filter(p=>!c.people.has(p.id))].map(p=>p.id))).map(id=>pchip(PM[id])).join("")}</div></div>
-      ${busy.length?`<p class="cr-warn">${XICON}— не отмечали это время как свободное. Репетицию всё равно можно создать.</p>`:""}
-    </div>
-    <div class="cr-sec"><div class="cr-lbl">Место</div>
-      <div class="cr-places">${PLACES.map(p=>`<button class="cr-place" data-act="crplace" data-v="${p.id}" aria-pressed="${c.place===p.id}">${p.name}</button>`).join("")}<button class="cr-place" data-act="crplace" data-v="other" aria-pressed="${c.place==="other"}">+ Другое</button></div>
-      ${c.place==="other"?`<input id="crPlaceText" class="cr-place-in" type="text" maxlength="80" placeholder="Например: репетиционная на Руставели, 12" value="${esc(c.placeText)}" aria-label="Другое место" autocomplete="off">`:""}
+    <div class="cr-head"><h3 id="crTitle">${c.id?"Репетиция":"Создать репетицию"}</h3><button class="cr-x" data-act="crclose" aria-label="Закрыть">${IC.x}</button></div>
+    <div class="cr-rows">
+      <div class="cr-row cr-time"><span class="cr-ic">${IC.clock}</span>
+        <div class="cr-tline">
+          <select id="crFrom" data-cr="from" aria-label="Начало">${timeOpts(c.from,T0,T1-30)}</select>
+          <span class="cr-arr">${IC.arrow}</span>
+          <select id="crTo" data-cr="to" aria-label="Конец">${timeOpts(c.to,T0+30,T1)}</select>
+          <span class="cr-dur">${c.to>c.from?durText(c.to-c.from):""}</span>
+        </div></div>
+      <div class="cr-row"><span class="cr-ic"></span>
+        <label class="cr-val cr-selwrap"><span>${WD_FULL[sel.wd]}, ${sel.dn} ${MON_G[sel.mo]}</span><select id="crDate" data-cr="date" aria-label="Дата">${DAYS.map(x=>`<option value="${x.iso}"${x.iso===c.date?" selected":""}>${WD[x.wd]}, ${x.dn} ${MON_G[x.mo]}${allFree(x.iso)?" · все могут":""}</option>`).join("")}</select></label></div>
+      <div class="cr-row"><span class="cr-ic">${IC.place}</span>
+        <label class="cr-val cr-selwrap"><span>${c.place==="other"?"Другое место":esc((PLACES.find(x=>x.id===c.place)||PLACES[0]).name)}</span><select id="crPlace" data-cr="place" aria-label="Место">${PLACES.map(p=>`<option value="${p.id}"${c.place===p.id?" selected":""}>${p.name}</option>`).join("")}<option value="other"${c.place==="other"?" selected":""}>Другое место…</option></select></label></div>
+      ${c.place==="other"?`<div class="cr-row cr-sub"><span class="cr-ic"></span><input id="crPlaceText" class="cr-place-in" type="text" maxlength="80" placeholder="Например: репетиционная на Руставели, 12" value="${esc(c.placeText)}" aria-label="Другое место" autocomplete="off"></div>`:""}
+      <div class="cr-row"><span class="cr-ic">${IC.person}</span>
+        <span class="cr-val cr-static">${n?`${n} ${plural(n,"участник","участника","участников")}`:"Участники не выбраны"}</span></div>
+      <div class="cr-row cr-sub"><span class="cr-ic"></span><div class="cr-pwrap">
+        ${n?`<div class="cr-tags">${chosen.map(sumChip).join("")}</div>`:""}
+        ${busy.length?`<p class="cr-warn">${XICON}— не отмечали это время как свободное. Репетицию всё равно можно создать.</p>`:""}
+        <button class="cr-link" data-act="crpick" data-v="people" aria-expanded="${editP}">${editP?"Свернуть список":(n?"Редактировать участников":"Выбрать участников")}</button>
+        ${editP?`<div class="cr-pbox${el.__psOpen?"":" anim"}" id="crPbox"><div class="cr-groups">${GROUPS.map(g=>`<button class="gchip" data-act="crgroup" data-g="${g.id}" aria-pressed="${g.ids.every(id=>c.people.has(id))}">${esc(g.name)} <span class="gn">${g.ids.length}</span></button>`).join("")}</div>
+          <div class="cr-chips">${(c.order||(c.order=[...sorted.filter(p=>c.people.has(p.id)),...sorted.filter(p=>!c.people.has(p.id))].map(p=>p.id))).map(id=>pchip(PM[id])).join("")}</div></div>`:""}
+      </div></div>
     </div>
     <div class="cr-actions">
       ${c.err?`<p class="cr-err" role="alert">${esc(c.err)}</p>`:""}
-      <button class="btn primary cr-save" data-act="crsave"${c.people.size&&c.to>c.from&&!c.saving?"":" disabled"}>${c.saving?"Сохраняю…":(c.id?"Сохранить":"Создать")}</button>
+      <button class="btn primary cr-save" data-act="crsave"${n&&c.to>c.from&&!c.saving?"":" disabled"}>${c.saving?"Сохраняю…":(c.id?"Сохранить":"Создать")}</button>
       ${c.id?(c.confirmDel?`<div class="cr-del"><span>Удалить репетицию?</span><button class="btn danger" data-act="crdel">Да, удалить</button><button class="btn ghost" data-act="crdelno">Нет</button></div>`:`<button class="cr-dellink" data-act="crdelask">Удалить репетицию</button>`):""}
     </div>
   </div>`;
+  const justOpened=editP&&!el.__psOpen; el.__psOpen=editP;
   const first=el.hidden;
   const keep=el.__chipsTop||0;
   if(first){ el.hidden=false; document.body.style.overflow="hidden"; el.classList.remove("anim"); void el.offsetWidth; el.classList.add("anim"); }
   const chips=el.querySelector(".cr-chips"); if(chips&&!first){ chips.scrollTop=keep; } if(chips) chips.addEventListener("scroll",()=>{el.__chipsTop=chips.scrollTop;},{passive:true}); if(first) el.__chipsTop=0;
-  if(first||c.scrollDay){ c.scrollDay=false; const strip=document.getElementById("crDays"), on=strip&&strip.querySelector(".dchip.on");
+  if(justOpened){ const bx=document.getElementById("crPbox"); bx&&requestAnimationFrame(()=>bx.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})); }
+  if(c.scrollDay){ c.scrollDay=false; const strip=document.getElementById("crDays"), on=strip&&strip.querySelector(".dchip.on");
     if(strip){ strip.scrollLeft = on ? on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2 : 0; } }
 }
 function viewPlan(){
@@ -935,7 +1010,8 @@ document.addEventListener("click",e=>{
       openCreate({date:base,from,to,people:[...S.need],editing:!S.need.size}); break; }
     case "openreh": { const r=REH.find(x=>x.id===b.dataset.id); if(r) openCreate({id:r.id,date:r.date,from:r.from,to:r.to,people:r.people,place:r.place,placeText:r.placeText}); break; }
     case "crclose": S.create=null; render(); break;
-    case "crday": S.create.date=iso; S.create.err=""; render(); break;
+    case "crday": S.create.date=iso; S.create.err=""; S.create.pick=null; render(); break;
+    case "crpick": { const c=S.create, v=b.dataset.v; c.pick=c.pick===v?null:v; if(v==="people") c.order=null; if(c.pick==="date"){ c.mo=DAYS[DI[c.date]].mo; c.scrollDay=true; } render(); break; }
     case "crmon": { const c=S.create, ms=[...new Set(DAYS.map(x=>x.mo))], k=ms.indexOf(c.mo)+(+b.dataset.dir); if(ms[k]!==undefined){ c.mo=ms[k]; c.scrollDay=true; } render(); break; }
     case "credit": S.create.editing=!S.create.editing; render(); break;
     case "crp": S.create.err=""; { const id=b.dataset.p, p=S.create.people; p.has(id)?p.delete(id):p.add(id); render(); break; }
@@ -953,7 +1029,7 @@ document.addEventListener("input",e=>{ if(e.target.id==="crPlaceText"&&S.create)
 document.addEventListener("keydown",e=>{ if(e.key==="Enter"&&e.target.id==="crPlaceText"){ e.preventDefault(); saveReh(); } });
 document.addEventListener("change",e=>{
   const t=e.target;
-  if(t.dataset.cr&&S.create){ const c=S.create; if(t.dataset.cr==="date") c.date=t.value; else { c[t.dataset.cr]=+t.value; if(t.dataset.cr==="from"&&c.to<=c.from) c.to=Math.min(T1,c.from+120); } render(); return; } if(t.dataset.act==="from"){S.from=+t.value; if(S.to<=S.from) S.to=Math.min(T1,S.from+120); render();}
+  if(t.dataset.cr&&S.create){ const c=S.create; if(t.dataset.cr==="date"){ c.date=t.value; c.err=""; } else if(t.dataset.cr==="place"){ c.place=t.value; c.err=""; render(); if(c.place==="other"){ const i=document.getElementById("crPlaceText"); i&&i.focus(); } return; } else { c[t.dataset.cr]=+t.value; if(t.dataset.cr==="from"&&c.to<=c.from) c.to=Math.min(T1,c.from+120); } render(); return; } if(t.dataset.act==="from"){S.from=+t.value; if(S.to<=S.from) S.to=Math.min(T1,S.from+120); render();}
   else if(t.dataset.act==="to"){S.to=+t.value;}
 });
 function route(){
@@ -963,7 +1039,7 @@ function route(){
   render(); if(S.view!==prev) window.scrollTo(0,0);
 }
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ if(S.create){ S.create=null; render(); } else if(S.day&&S.view==="calendar") location.hash="calendar"; return; }
+  if(e.key==="Escape"){ if(S.create&&S.create.pick==="people"){ S.create.pick=null; render(); return; } if(S.create){ S.create=null; render(); } else if(S.day&&S.view==="calendar") location.hash="calendar"; return; }
   if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches('[role="link"],[role="button"]')&&e.target.dataset.act){ e.preventDefault(); e.target.click(); }
 });
 window.addEventListener("hashchange",route);
